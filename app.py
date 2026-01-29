@@ -2,8 +2,7 @@ import streamlit as st
 import pandas as pd
 import joblib
 
-# ---------------- LOAD MODEL & FEATURES ----------------
-
+# Model and Features
 model = joblib.load("churn_model.pkl")
 features = joblib.load("model_features.pkl")
 
@@ -11,7 +10,7 @@ st.set_page_config(page_title="Customer Churn Prediction", layout="centered")
 st.title("Customer Churn Prediction")
 st.write("Fill in customer details below:")
 
-# ---------------- USER INPUTS (CLEAN UI) ----------------
+# User Input
 
 gender = st.selectbox("Gender", ["Female", "Male"])
 senior = st.selectbox("Senior Citizen", ["No", "Yes"])
@@ -67,36 +66,32 @@ payment_method = st.selectbox(
     ]
 )
 
-# ---------------- ENCODING LOGIC ----------------
 
-# Start with all-zero input
 input_data = {feature: 0 for feature in features}
 
-# Binary fields
 input_data["gender"] = 1 if gender == "Male" else 0
 input_data["SeniorCitizen"] = 1 if senior == "Yes" else 0
 input_data["Partner"] = 1 if partner == "Yes" else 0
 input_data["Dependents"] = 1 if dependents == "Yes" else 0
 input_data["PhoneService"] = 1 if phone_service == "Yes" else 0
 
-# Numeric fields
 input_data["tenure"] = tenure
 input_data["MonthlyCharges"] = monthly_charges
 input_data["TotalCharges"] = total_charges
 
-# Multiple lines
+
 if multiple_lines == "Yes":
     input_data["MultipleLines_Yes"] = 1
 elif multiple_lines == "No phone service":
     input_data["MultipleLines_No phone service"] = 1
 
-# Internet service
+
 if internet_service == "Fiber optic":
     input_data["InternetService_Fiber optic"] = 1
 elif internet_service == "No":
     input_data["InternetService_No"] = 1
 
-# Helper function for internet-related services
+
 def encode_service(value, yes_col, no_internet_col):
     if value == "Yes":
         input_data[yes_col] = 1
@@ -110,13 +105,13 @@ encode_service(tech_support, "TechSupport_Yes", "TechSupport_No internet service
 encode_service(streaming_tv, "StreamingTV_Yes", "StreamingTV_No internet service")
 encode_service(streaming_movies, "StreamingMovies_Yes", "StreamingMovies_No internet service")
 
-# Contract
+
 if contract == "One year":
     input_data["Contract_One year"] = 1
 elif contract == "Two year":
     input_data["Contract_Two year"] = 1
 
-# Payment method
+
 if payment_method == "Credit card (automatic)":
     input_data["PaymentMethod_Credit card (automatic)"] = 1
 elif payment_method == "Electronic check":
@@ -124,7 +119,7 @@ elif payment_method == "Electronic check":
 elif payment_method == "Mailed check":
     input_data["PaymentMethod_Mailed check"] = 1
 
-# ---------------- PREDICTION ----------------
+# Prediction
 
 input_df = pd.DataFrame([input_data])
 
@@ -139,3 +134,4 @@ if st.button("Predict Churn"):
         st.error(f"Customer is likely to churn ({churn_prob:.2f}%)")
     else:
         st.success(f"Customer is NOT likely to churn ({stay_prob:.2f}%)")
+
